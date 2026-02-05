@@ -1,0 +1,75 @@
+package de.stoll.nicolas.bgraph.person.adapter.in.web;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1")
+@AllArgsConstructor
+@Tag(name = "Person API", description = "API for managing persons")
+class PersonController {
+
+    private final PersonModelMapper personModelMapper = new PersonModelMapper();
+
+    private final CreatePersonUseCase createPersonUseCase;
+
+
+    @GetMapping("/people")
+    public CollectionModel<EntityModel<PersonModel>> getAllPersons() {
+
+        return null;
+    }
+
+    @Operation(
+            summary = "Create a new person",
+            description = "Creates a new person with the provided details."
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "Person created successfully",
+            content = @Content(schema = @Schema(implementation = PersonModel.class))
+    )
+    @PostMapping("/people")
+    public ResponseEntity<EntityModel<PersonModel>> createPerson(@RequestBody CreatePersonDTO createPersonDTO) {
+
+        Person temp = Person.builder()
+                .firstname(createPersonDTO.firstName())
+                .lastname(createPersonDTO.lastName())
+                .build();
+
+        CreatePersonCommand command = new CreatePersonCommand(temp);
+
+        Person person = this.createPersonUseCase.createPerson(command);
+
+        PersonModel model = personModelMapper.toPersonModel(person);
+
+        EntityModel<PersonModel> resource = EntityModel.of(
+                model,
+                linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel(),
+                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("people")
+        );
+
+        return ResponseEntity.created(
+                linkTo(methodOn(PersonController.class).getPersonById(model.getId())).toUri()
+        ).body(resource);
+    }
+
+    @GetMapping("/people/{id}")
+    public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable long id) {
+        return null;
+    }
+}
