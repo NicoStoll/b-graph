@@ -4,5 +4,5 @@ import de.stoll.nicolas.bgraph.person.application.domain.model.PersonCandidate;
 
 import java.util.List;
 
-public record PersonAmiguous(List<PersonCandidate> candidates) implements CreatePersonResult {
+public record PersonAmbiguous(List<PersonCandidate> candidates) implements CreatePersonResult {
 }

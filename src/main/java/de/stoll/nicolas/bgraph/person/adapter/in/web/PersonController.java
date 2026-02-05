@@ -59,7 +59,7 @@ class PersonController {
                 Person person = pc.person();
                 return buildCreatedPersonResponse(person);
             }
-            case PersonAmiguous pa -> {
+            case PersonAmbiguous pa -> {
                 // Handle ambiguity case if necessary
                 throw new IllegalStateException("Person creation resulted in ambiguity: " + pa);
             }
