@@ -1,9 +1,11 @@
 package de.stoll.nicolas.bgraph.person.application.domain.service;
 
-import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonCommand;
-import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonUseCase;
-import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.*;
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonResult;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.PersonCreated;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
 public class PersonService implements CreatePersonUseCase, GetPersonUseCase {
 
     @Override
-    public Person createPerson(CreatePersonCommand command) {
+    public CreatePersonResult createPerson(CreatePersonCommand command) {
 
         Person p = Person.builder()
                 .id(-1L)
@@ -20,7 +22,7 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase {
                 .lastname(command.getPerson().lastname())
                 .build();
 
-        return p;
+        return new PersonCreated(p);
     }
 
     @Override

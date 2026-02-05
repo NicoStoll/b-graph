@@ -3,8 +3,7 @@ package de.stoll.nicolas.bgraph.person.adapter.in.web;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonCommand;
-import de.stoll.nicolas.bgraph.person.application.port.in.CreatePersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -53,7 +52,28 @@ class PersonController {
 
         CreatePersonCommand command = new CreatePersonCommand(temp);
 
-        Person person = this.createPersonUseCase.createPerson(command);
+        CreatePersonResult result = this.createPersonUseCase.createPerson(command);
+
+        switch (result) {
+            case PersonCreated pc -> {
+                Person person = pc.person();
+                return buildCreatedPersonResponse(person);
+            }
+            case PersonAmiguous pa -> {
+                // Handle ambiguity case if necessary
+                throw new IllegalStateException("Person creation resulted in ambiguity: " + pa);
+            }
+            case PersonAlreadyExists pae -> {
+                // Handle already exists case if necessary
+                throw new IllegalStateException("Person already exists: " + pae);
+            }
+            // Handle other cases if necessary
+            default -> throw new IllegalStateException("Unexpected value: " + result);
+        }
+
+    }
+
+    private ResponseEntity<EntityModel<PersonModel>> buildCreatedPersonResponse(Person person) {
 
         PersonModel model = personModelMapper.toPersonModel(person);
 
