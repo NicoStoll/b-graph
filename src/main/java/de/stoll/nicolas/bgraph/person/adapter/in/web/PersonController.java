@@ -11,11 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Log
 @RestController
 @RequestMapping("/api/v1")
 @AllArgsConstructor
@@ -29,6 +31,8 @@ class PersonController {
 
     @GetMapping("/people")
     public CollectionModel<EntityModel<PersonModel>> getAllPersons() {
+
+        log.info("Received request to get all persons");
 
         return null;
     }
