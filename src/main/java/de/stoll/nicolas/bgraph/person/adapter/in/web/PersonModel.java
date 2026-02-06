@@ -8,7 +8,7 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 public class PersonModel extends RepresentationModel<PersonModel> {
 
-    private long id;
+    private String id;
 
     private String firstname;
 

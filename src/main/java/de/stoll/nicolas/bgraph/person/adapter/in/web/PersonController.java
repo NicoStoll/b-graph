@@ -1,11 +1,10 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,24 +16,52 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Log
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/people")
 @AllArgsConstructor
 @Tag(name = "Person API", description = "API for managing persons")
 class PersonController {
 
     private final PersonModelMapper personModelMapper = new PersonModelMapper();
 
+    private final GetPersonUseCase getPersonUseCase;
+
     private final CreatePersonUseCase createPersonUseCase;
 
 
-    @GetMapping("/people")
+    @Operation(
+            summary = "Get all persons",
+            description = "Retrieves a list of all persons."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Persons successfully retrieved",
+            content = @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = PersonModel.class))
+            )
+    )
+    @GetMapping("")
     public CollectionModel<EntityModel<PersonModel>> getAllPersons() {
 
-        log.info("Received request to get all persons");
+        List<EntityModel<PersonModel>> result = this.getPersonUseCase.getAllPersons().stream().map(person -> {
 
-        return null;
+            PersonModel model = personModelMapper.toPersonModel(person);
+
+            return EntityModel.of(model,
+                    linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel()
+            );
+        }).toList();
+
+
+        return CollectionModel.of(result,
+                linkTo(methodOn(PersonController.class).getAllPersons()).withSelfRel()
+        );
     }
 
     @Operation(
@@ -46,7 +73,7 @@ class PersonController {
             description = "Person created successfully",
             content = @Content(schema = @Schema(implementation = PersonModel.class))
     )
-    @PostMapping("/people")
+    @PostMapping("")
     public ResponseEntity<EntityModel<PersonModel>> createPerson(@RequestBody CreatePersonDTO createPersonDTO) {
 
         Person temp = Person.builder()
@@ -92,8 +119,8 @@ class PersonController {
         ).body(resource);
     }
 
-    @GetMapping("/people/{id}")
-    public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable String id) {
         return null;
     }
 }
