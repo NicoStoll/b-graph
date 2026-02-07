@@ -1,4 +1,4 @@
-package de.stoll.nicolas.bgraph.person.application.port.in;
+package de.stoll.nicolas.bgraph.person.application.port.in.update;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import lombok.AllArgsConstructor;

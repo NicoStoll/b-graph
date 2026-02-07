@@ -1,4 +1,4 @@
-package de.stoll.nicolas.bgraph.person.application.port.in;
+package de.stoll.nicolas.bgraph.person.application.port.in.delete;
 
 public interface DeletePersonUseCase {
 

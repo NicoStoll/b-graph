@@ -1,8 +1,8 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonQuery;
-import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonQuery;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

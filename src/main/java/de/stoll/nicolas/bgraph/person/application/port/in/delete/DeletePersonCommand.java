@@ -1,4 +1,4 @@
-package de.stoll.nicolas.bgraph.person.application.port.in;
+package de.stoll.nicolas.bgraph.person.application.port.in.delete;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

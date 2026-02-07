@@ -1,15 +1,20 @@
 package de.stoll.nicolas.bgraph.person.application.domain.service;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-import de.stoll.nicolas.bgraph.person.application.port.in.*;
+import de.stoll.nicolas.bgraph.person.application.domain.model.PersonCandidate;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonCommand;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonResult;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.PersonCreated;
-import de.stoll.nicolas.bgraph.person.application.port.out.CreatePersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.DeletePersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.GetPersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.UpdatePersonPort;
+import de.stoll.nicolas.bgraph.person.application.port.in.delete.DeletePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.delete.DeletePersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdQuery;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonQuery;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.in.update.UpdatePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.update.UpdatePersonUseCase;
+import de.stoll.nicolas.bgraph.person.application.port.out.*;
 import de.stoll.nicolas.bgraph.person.application.port.out.events.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -24,6 +29,8 @@ import java.util.List;
 public class PersonService implements CreatePersonUseCase, GetPersonUseCase, GetPersonByIdUseCase, UpdatePersonUseCase, DeletePersonUseCase {
 
     private final GetPersonPort getPersonPort;
+
+    private final PersonSearchPort personSearchPort;
 
     private final PersonCreatedEventPort personCreatedEventPort;
 
@@ -46,6 +53,10 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
                 .firstname(command.getPerson().firstname())
                 .lastname(command.getPerson().lastname())
                 .build();
+
+        List<PersonCandidate> candidates = this.personSearchPort.searchPerson(p);
+
+        log.info("Found " + candidates.size() + " candidates for person " + p);
 
         Person created = this.createPersonPort.createPerson(p);
 
