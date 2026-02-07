@@ -1,4 +1,4 @@
-package de.stoll.nicolas.bgraph.person.application.port.out;
+package de.stoll.nicolas.bgraph.person.application.port.out.events;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 

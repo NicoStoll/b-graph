@@ -1,6 +1,7 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.GetPersonUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +50,7 @@ class PersonController {
     @GetMapping("")
     public CollectionModel<EntityModel<PersonModel>> getAllPersons() {
 
-        List<EntityModel<PersonModel>> result = this.getPersonUseCase.getAllPersons().stream().map(person -> {
+        List<EntityModel<PersonModel>> result = this.getPersonUseCase.getAllPersons(new GetPersonQuery()).stream().map(person -> {
 
             PersonModel model = personModelMapper.toPersonModel(person);
 
