@@ -1,6 +1,8 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdQuery;
+import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
@@ -34,6 +36,8 @@ class PersonController {
     private final GetPersonUseCase getPersonUseCase;
 
     private final CreatePersonUseCase createPersonUseCase;
+
+    private final GetPersonByIdUseCase getPersonByIdUseCase;
 
 
     @Operation(
@@ -77,12 +81,10 @@ class PersonController {
     @PostMapping("")
     public ResponseEntity<EntityModel<PersonModel>> createPerson(@RequestBody CreatePersonDTO createPersonDTO) {
 
-        Person temp = Person.builder()
-                .firstname(createPersonDTO.firstName())
-                .lastname(createPersonDTO.lastName())
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .firstName(createPersonDTO.firstName())
+                .lastName(createPersonDTO.lastName())
                 .build();
-
-        CreatePersonCommand command = new CreatePersonCommand(temp);
 
         CreatePersonResult result = this.createPersonUseCase.createPerson(command);
 
@@ -122,6 +124,9 @@ class PersonController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable String id) {
+
+        Person p = this.getPersonByIdUseCase.getPersonById(new GetPersonByIdQuery(id));
+
         return null;
     }
 }

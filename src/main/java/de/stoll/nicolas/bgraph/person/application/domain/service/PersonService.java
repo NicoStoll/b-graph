@@ -20,11 +20,13 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Log
 @Service
+@Validated
 @AllArgsConstructor
 public class PersonService implements CreatePersonUseCase, GetPersonUseCase, GetPersonByIdUseCase, UpdatePersonUseCase, DeletePersonUseCase {
 
@@ -50,8 +52,8 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
         Person p = Person.builder()
                 .id("-1")
-                .firstname(command.getPerson().firstname())
-                .lastname(command.getPerson().lastname())
+                .firstname(command.getFirstName())
+                .lastname(command.getLastName())
                 .build();
 
         List<PersonCandidate> candidates = this.personSearchPort.searchPerson(p);
@@ -73,6 +75,7 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
     @Override
     public Person getPersonById(GetPersonByIdQuery command) {
+
         return null;
     }
 

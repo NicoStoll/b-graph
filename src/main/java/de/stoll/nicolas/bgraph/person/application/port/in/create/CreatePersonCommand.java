@@ -1,13 +1,17 @@
 package de.stoll.nicolas.bgraph.person.application.port.in.create;
 
-import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Builder
+@Value
 public class CreatePersonCommand {
 
-    private Person person;
+    @NotBlank(message = "First name must not be empty")
+    String firstName;
+
+    @NotBlank(message = "Last name must not be empty")
+    String lastName;
 
 }

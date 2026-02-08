@@ -1,5 +1,6 @@
 package de.stoll.nicolas.bgraph.person.application.port.in.get;
 
+import de.stoll.nicolas.bgraph.person.application.port.in.ValidPersonId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,5 +8,6 @@ import lombok.Getter;
 @Getter
 public class GetPersonByIdQuery {
 
+    @ValidPersonId
     String id;
 }
