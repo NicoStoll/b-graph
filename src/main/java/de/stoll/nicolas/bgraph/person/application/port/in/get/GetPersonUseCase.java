@@ -1,10 +1,9 @@
 package de.stoll.nicolas.bgraph.person.application.port.in.get;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface GetPersonUseCase {
 
-    List<Person> getAllPersons(GetPersonQuery query);
+    Page<Person> getAllPersons(GetPersonQuery query);
 }

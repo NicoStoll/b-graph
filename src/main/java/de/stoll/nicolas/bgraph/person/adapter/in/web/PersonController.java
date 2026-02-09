@@ -1,11 +1,13 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
+import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonUseCase;
-import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
+import de.stoll.nicolas.bgraph.person.application.port.in.update.UpdatePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.update.UpdatePersonUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,12 +16,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -31,6 +35,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Tag(name = "Person API", description = "API for managing persons")
 class PersonController {
 
+    public static final int DEFAULT_PAGE = 0;
+    public static final int DEFAULT_SIZE = 20;
+
     private final PersonModelMapper personModelMapper = new PersonModelMapper();
 
     private final GetPersonUseCase getPersonUseCase;
@@ -38,6 +45,12 @@ class PersonController {
     private final CreatePersonUseCase createPersonUseCase;
 
     private final GetPersonByIdUseCase getPersonByIdUseCase;
+
+    private final UpdatePersonUseCase updatePersonUseCase;
+
+    //IntelliJ does not recognize the autowiring of this component
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    private final PagedResourcesAssembler<Person> pagedResourcesAssembler;
 
 
     @Operation(
@@ -52,20 +65,28 @@ class PersonController {
             )
     )
     @GetMapping("")
-    public CollectionModel<EntityModel<PersonModel>> getAllPersons() {
+    public PagedModel<EntityModel<PersonModel>> getAllPersons(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
 
-        List<EntityModel<PersonModel>> result = this.getPersonUseCase.getAllPersons(new GetPersonQuery()).stream().map(person -> {
+        GetPersonQuery query = GetPersonQuery.builder()
+                .page(page)
+                .size(size)
+                .build();
 
-            PersonModel model = personModelMapper.toPersonModel(person);
+        Page<Person> result = this.getPersonUseCase.getAllPersons(query);
 
-            return EntityModel.of(model,
-                    linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel()
-            );
-        }).toList();
-
-
-        return CollectionModel.of(result,
-                linkTo(methodOn(PersonController.class).getAllPersons()).withSelfRel()
+        return pagedResourcesAssembler.toModel(
+                result,
+                person -> {
+                    PersonModel model = personModelMapper.toPersonModel(person);
+                    return EntityModel.of(
+                            model,
+                            linkTo(methodOn(PersonController.class)
+                                    .getPersonById(model.getId()))
+                                    .withSelfRel()
+                    );
+                }
         );
     }
 
@@ -114,7 +135,7 @@ class PersonController {
         EntityModel<PersonModel> resource = EntityModel.of(
                 model,
                 linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel(),
-                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("people")
+                linkTo(methodOn(PersonController.class).getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE)).withRel("people")
         );
 
         return ResponseEntity.created(
@@ -125,8 +146,34 @@ class PersonController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable String id) {
 
-        Person p = this.getPersonByIdUseCase.getPersonById(new GetPersonByIdQuery(id));
+        Optional<Person> p = this.getPersonByIdUseCase.getPersonById(new GetPersonByIdQuery(id));
 
         return null;
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<PersonModel>> updatePerson(@PathVariable String id, @RequestBody UpdatePersonDTO updatePersonDTO) {
+
+        if (!id.equals(updatePersonDTO.id())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        UpdatePersonCommand command = UpdatePersonCommand.builder()
+                .id(id)
+                .firstName(updatePersonDTO.firstName())
+                .lastName(updatePersonDTO.lastName())
+                .build();
+
+        Person p = this.updatePersonUseCase.updatePerson(command);
+
+        PersonModel model = personModelMapper.toPersonModel(p);
+
+        EntityModel<PersonModel> resource = EntityModel.of(model,
+                linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel(),
+                linkTo(methodOn(PersonController.class).getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE)).withRel("people")
+        );
+
+        return ResponseEntity.ok(resource);
+    }
+
 }

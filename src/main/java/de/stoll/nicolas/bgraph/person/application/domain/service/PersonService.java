@@ -2,6 +2,7 @@ package de.stoll.nicolas.bgraph.person.application.domain.service;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import de.stoll.nicolas.bgraph.person.application.domain.model.PersonCandidate;
+import de.stoll.nicolas.bgraph.person.application.domain.model.PersonQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonCommand;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonResult;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonUseCase;
@@ -19,10 +20,13 @@ import de.stoll.nicolas.bgraph.person.application.port.out.events.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 
 @Log
 @Service
@@ -52,8 +56,8 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
         Person p = Person.builder()
                 .id("-1")
-                .firstname(command.getFirstName())
-                .lastname(command.getLastName())
+                .firstName(command.getFirstName())
+                .lastName(command.getLastName())
                 .build();
 
         List<PersonCandidate> candidates = this.personSearchPort.searchPerson(p);
@@ -68,27 +72,38 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
     }
 
     @Override
-    public List<Person> getAllPersons(GetPersonQuery query) {
+    public Page<Person> getAllPersons(GetPersonQuery query) {
 
-        return this.getPersonPort.getAllPersons();
+        Pageable pageable = Pageable.ofSize(query.getSize()).withPage(query.getPage());
+
+        return this.getPersonPort.getAllPersons(pageable);
     }
 
     @Override
-    public Person getPersonById(GetPersonByIdQuery command) {
+    public Optional<Person> getPersonById(GetPersonByIdQuery command) {
 
         return null;
     }
 
     @Override
+    @Transactional
     public Person updatePerson(UpdatePersonCommand updatePersonCommand) {
 
-        this.updatePersonPort.updatePerson(updatePersonCommand.getPerson());
+        Person updatedPerson = Person.builder()
+                .id(updatePersonCommand.getId())
+                .firstName(updatePersonCommand.getFirstName())
+                .lastName(updatePersonCommand.getLastName())
+                .build();
+
+        log.info(updatedPerson.toString());
+
+        Person result = this.updatePersonPort.updatePerson(updatedPerson);
 
         this.personUpdatedEventPort.publishUpdated(
-                new PersonUpdatedEvent(updatePersonCommand.getPerson())
+                new PersonUpdatedEvent(result)
         );
 
-        return null;
+        return result;
     }
 
     @Override

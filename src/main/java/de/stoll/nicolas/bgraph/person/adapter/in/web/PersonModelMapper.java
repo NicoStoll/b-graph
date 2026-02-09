@@ -6,9 +6,9 @@ public class PersonModelMapper {
 
     PersonModel toPersonModel(Person person) {
         return new PersonModel(
-                person.id(),
-                person.firstname(),
-                person.lastname()
+                person.getId(),
+                person.getFirstName(),
+                person.getLastName()
         );
     }
 }

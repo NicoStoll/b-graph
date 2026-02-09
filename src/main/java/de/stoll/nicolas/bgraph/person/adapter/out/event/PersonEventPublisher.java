@@ -17,7 +17,7 @@ public class PersonEventPublisher implements PersonCreatedEventPort, PersonUpdat
     @Override
     public void publishCreated(PersonCreatedEvent personCreatedEvent) {
 
-        log.info("Publishing PersonCreatedEvent for person with id: " + personCreatedEvent.person().id());
+        log.info("Publishing PersonCreatedEvent for person with id: " + personCreatedEvent.person().getId());
 
         this.publisher.publishEvent(personCreatedEvent);
     }
@@ -25,7 +25,7 @@ public class PersonEventPublisher implements PersonCreatedEventPort, PersonUpdat
     @Override
     public void publishUpdated(PersonUpdatedEvent personUpdatedEvent) {
 
-        log.info("Publishing PersonUpdatedEvent for person with id: " + personUpdatedEvent.updatedPerson().id());
+        log.info("Publishing PersonUpdatedEvent for person with id: " + personUpdatedEvent.updatedPerson().getId());
 
         this.publisher.publishEvent(personUpdatedEvent);
     }

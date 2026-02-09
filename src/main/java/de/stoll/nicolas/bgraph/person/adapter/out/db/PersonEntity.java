@@ -2,6 +2,7 @@ package de.stoll.nicolas.bgraph.person.adapter.out.db;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
@@ -21,6 +22,12 @@ public class PersonEntity {
 
     public PersonEntity(String firstname, String lastname) {
         this.firstname = firstname;
+        this.lastname = lastname;
+    }
+
+    public PersonEntity(String personId, String firstname,  String lastname) {
+        this.firstname = firstname;
+        this.personId = personId;
         this.lastname = lastname;
     }
 

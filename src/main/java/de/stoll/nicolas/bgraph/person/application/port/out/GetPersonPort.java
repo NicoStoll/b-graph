@@ -1,10 +1,10 @@
 package de.stoll.nicolas.bgraph.person.application.port.out;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface GetPersonPort {
 
-    List<Person> getAllPersons();
+    Page<Person> getAllPersons(Pageable pageable);
 }
