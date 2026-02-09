@@ -2,7 +2,6 @@ package de.stoll.nicolas.bgraph.person.application.domain.service;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import de.stoll.nicolas.bgraph.person.application.domain.model.PersonCandidate;
-import de.stoll.nicolas.bgraph.person.application.domain.model.PersonQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonCommand;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonResult;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.CreatePersonUseCase;
@@ -50,15 +49,13 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
     private final DeletePersonPort deletePersonPort;
 
+    private final PersonMapper personMapper;
+
     @Override
     @Transactional
     public CreatePersonResult createPerson(CreatePersonCommand command) {
 
-        Person p = Person.builder()
-                .id("-1")
-                .firstName(command.getFirstName())
-                .lastName(command.getLastName())
-                .build();
+        Person p = this.personMapper.toPerson(command);
 
         List<PersonCandidate> candidates = this.personSearchPort.searchPerson(p);
 
@@ -89,11 +86,7 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
     @Transactional
     public Person updatePerson(UpdatePersonCommand updatePersonCommand) {
 
-        Person updatedPerson = Person.builder()
-                .id(updatePersonCommand.getId())
-                .firstName(updatePersonCommand.getFirstName())
-                .lastName(updatePersonCommand.getLastName())
-                .build();
+        Person updatedPerson = this.personMapper.toPerson(updatePersonCommand);
 
         log.info(updatedPerson.toString());
 

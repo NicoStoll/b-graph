@@ -38,7 +38,7 @@ class PersonController {
     public static final int DEFAULT_PAGE = 0;
     public static final int DEFAULT_SIZE = 20;
 
-    private final PersonModelMapper personModelMapper = new PersonModelMapper();
+    private final PersonModelMapper personModelMapper;
 
     private final GetPersonUseCase getPersonUseCase;
 

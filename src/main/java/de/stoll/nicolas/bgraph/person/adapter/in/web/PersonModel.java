@@ -10,7 +10,7 @@ public class PersonModel extends RepresentationModel<PersonModel> {
 
     private String id;
 
-    private String firstname;
+    private String firstName;
 
-    private String lastname;
+    private String lastName;
 }
