@@ -1,5 +1,7 @@
 package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
+import de.stoll.nicolas.bgraph.person.adapter.in.web.response.CreatePersonResponseFactory;
+import de.stoll.nicolas.bgraph.person.adapter.in.web.response.CreatePersonResponseCommand;
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
 import de.stoll.nicolas.bgraph.person.application.port.in.delete.DeletePersonCommand;
@@ -33,7 +35,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/v1/people")
 @AllArgsConstructor
 @Tag(name = "Person API", description = "API for managing persons")
-class PersonController {
+public class PersonController {
 
     public static final int DEFAULT_PAGE = 0;
     public static final int DEFAULT_SIZE = 20;
@@ -43,6 +45,8 @@ class PersonController {
     private final GetPersonUseCase getPersonUseCase;
 
     private final CreatePersonUseCase createPersonUseCase;
+
+    private final CreatePersonResponseFactory createPersonResponseBuilder;
 
     private final GetPersonByIdUseCase getPersonByIdUseCase;
 
@@ -111,38 +115,9 @@ class PersonController {
 
         CreatePersonResult result = this.createPersonUseCase.createPerson(command);
 
-        switch (result) {
-            case PersonCreated pc -> {
-                Person person = pc.person();
-                return buildCreatedPersonResponse(person);
-            }
-            case PersonAmbiguous pa -> {
-                // Handle ambiguity case if necessary
-                throw new IllegalStateException("Person creation resulted in ambiguity: " + pa);
-            }
-            case PersonAlreadyExists pae -> {
-                // Handle already exists case if necessary
-                throw new IllegalStateException("Person already exists: " + pae);
-            }
-            // Handle other cases if necessary
-            default -> throw new IllegalStateException("Unexpected value: " + result);
-        }
+        CreatePersonResponseCommand responseCommand = this.createPersonResponseBuilder.build(result);
 
-    }
-
-    private ResponseEntity<EntityModel<PersonModel>> buildCreatedPersonResponse(Person person) {
-
-        PersonModel model = personModelMapper.toPersonModel(person);
-
-        EntityModel<PersonModel> resource = EntityModel.of(
-                model,
-                linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel(),
-                linkTo(methodOn(PersonController.class).getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE)).withRel("people")
-        );
-
-        return ResponseEntity.created(
-                linkTo(methodOn(PersonController.class).getPersonById(model.getId())).toUri()
-        ).body(resource);
+        return responseCommand.execute();
     }
 
     @GetMapping("/{id}")
