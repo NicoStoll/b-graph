@@ -72,12 +72,16 @@ public class PersonController {
     )
     @GetMapping("")
     public PagedModel<EntityModel<PersonModel>> getAllPersons(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size,
+            @RequestParam(required = false, defaultValue = "") String firstname,
+            @RequestParam(required = false, defaultValue = "") String lastname) {
 
         GetPersonQuery query = GetPersonQuery.builder()
                 .page(page)
                 .size(size)
+                .firstName(firstname)
+                .lastName(lastname)
                 .build();
 
         Page<Person> result = this.getPersonUseCase.getAllPersons(query);
@@ -133,7 +137,7 @@ public class PersonController {
                         .getPersonById(id))
                         .withSelfRel(),
                 linkTo(methodOn(PersonController.class)
-                        .getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE))
+                        .getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE, "", ""))
                         .withRel("people")
         );
 
@@ -159,7 +163,7 @@ public class PersonController {
 
         EntityModel<PersonModel> resource = EntityModel.of(model,
                 linkTo(methodOn(PersonController.class).getPersonById(model.getId())).withSelfRel(),
-                linkTo(methodOn(PersonController.class).getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE)).withRel("people")
+                linkTo(methodOn(PersonController.class).getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE, "", "")).withRel("people")
         );
 
         return ResponseEntity.ok(resource);

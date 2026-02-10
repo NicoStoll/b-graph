@@ -30,9 +30,10 @@ public class PersonPersistenceAdapter implements GetPersonPort, GetPersonByIdPor
     }
 
     @Override
-    public Page<Person> getAllPersons(Pageable pageable) {
+    public Page<Person> getAllPersons(String firstName, String lastName, Pageable pageable) {
 
-        return personRepository.findAll(pageable)
+        return personRepository
+                .search(firstName, lastName, pageable)
                 .map(PersonEntity::toPerson);
     }
 

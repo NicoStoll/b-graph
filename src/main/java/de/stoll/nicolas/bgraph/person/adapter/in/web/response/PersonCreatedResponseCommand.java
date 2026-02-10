@@ -26,7 +26,7 @@ public class PersonCreatedResponseCommand implements CreatePersonResponseCommand
                         .getPersonById(model.getId()))
                         .withSelfRel(),
                 linkTo(methodOn(PersonController.class)
-                        .getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE))
+                        .getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE, "", ""))
                         .withRel("people")
         );
 

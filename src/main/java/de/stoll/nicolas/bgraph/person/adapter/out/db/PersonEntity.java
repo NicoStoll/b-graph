@@ -2,10 +2,8 @@ package de.stoll.nicolas.bgraph.person.adapter.out.db;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

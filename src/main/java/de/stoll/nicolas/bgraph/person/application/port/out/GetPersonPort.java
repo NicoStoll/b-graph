@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface GetPersonPort {
 
-    Page<Person> getAllPersons(Pageable pageable);
+    Page<Person> getAllPersons(String firstName, String lastName, Pageable pageable);
 }

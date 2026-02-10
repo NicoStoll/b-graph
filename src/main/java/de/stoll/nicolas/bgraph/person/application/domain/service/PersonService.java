@@ -75,7 +75,7 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
         Pageable pageable = Pageable.ofSize(query.getSize()).withPage(query.getPage());
 
-        return this.getPersonPort.getAllPersons(pageable);
+        return this.getPersonPort.getAllPersons(query.getFirstName(), query.getLastName(), pageable);
     }
 
     @Override
