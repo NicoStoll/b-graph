@@ -2,6 +2,8 @@ package de.stoll.nicolas.bgraph.person.adapter.in.web;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 import de.stoll.nicolas.bgraph.person.application.port.in.create.*;
+import de.stoll.nicolas.bgraph.person.application.port.in.delete.DeletePersonCommand;
+import de.stoll.nicolas.bgraph.person.application.port.in.delete.DeletePersonUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdQuery;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonByIdUseCase;
 import de.stoll.nicolas.bgraph.person.application.port.in.get.GetPersonQuery;
@@ -22,8 +24,6 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -47,6 +47,8 @@ class PersonController {
     private final GetPersonByIdUseCase getPersonByIdUseCase;
 
     private final UpdatePersonUseCase updatePersonUseCase;
+
+    private final DeletePersonUseCase deletePersonUseCase;
 
     //IntelliJ does not recognize the autowiring of this component
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -146,9 +148,21 @@ class PersonController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<PersonModel>> getPersonById(@PathVariable String id) {
 
-        Optional<Person> p = this.getPersonByIdUseCase.getPersonById(new GetPersonByIdQuery(id));
+        Person p = this.getPersonByIdUseCase.getPersonById(new GetPersonByIdQuery(id));
 
-        return null;
+        PersonModel model = personModelMapper.toPersonModel(p);
+
+        EntityModel<PersonModel> resource = EntityModel.of(
+                model,
+                linkTo(methodOn(PersonController.class)
+                        .getPersonById(id))
+                        .withSelfRel(),
+                linkTo(methodOn(PersonController.class)
+                        .getAllPersons(DEFAULT_PAGE, DEFAULT_SIZE))
+                        .withRel("people")
+        );
+
+        return ResponseEntity.ok(resource);
     }
 
     @PutMapping("/{id}")
@@ -176,4 +190,13 @@ class PersonController {
         return ResponseEntity.ok(resource);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePerson(@PathVariable String id) {
+
+        DeletePersonCommand command = new DeletePersonCommand(id);
+
+        this.deletePersonUseCase.deletePerson(command);
+
+        return ResponseEntity.noContent().build();
+    }
 }

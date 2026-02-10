@@ -35,6 +35,8 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
 
     private final GetPersonPort getPersonPort;
 
+    private final GetPersonByIdPort getPersonByIdPort;
+
     private final PersonSearchPort personSearchPort;
 
     private final PersonCreatedEventPort personCreatedEventPort;
@@ -77,14 +79,21 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
     }
 
     @Override
-    public Optional<Person> getPersonById(GetPersonByIdQuery command) {
+    public Person getPersonById(GetPersonByIdQuery command) {
 
-        return null;
+        return this.getPersonByIdPort
+                .getSinglePersonById(command.getId())
+                .orElseThrow(() -> new PersonNotFoundException(command.getId()));
     }
 
     @Override
     @Transactional
     public Person updatePerson(UpdatePersonCommand updatePersonCommand) {
+
+        // TODO: Check if person exists
+        this.getPersonByIdPort
+                .getSinglePersonById(updatePersonCommand.getId())
+                .orElseThrow(() -> new PersonNotFoundException(updatePersonCommand.getId()));
 
         Person updatedPerson = this.personMapper.toPerson(updatePersonCommand);
 
@@ -100,9 +109,17 @@ public class PersonService implements CreatePersonUseCase, GetPersonUseCase, Get
     }
 
     @Override
+    @Transactional
     public void deletePerson(DeletePersonCommand deletePersonCommand) {
 
-        this.deletePersonPort.deletePersonById(deletePersonCommand.getId());
+        Optional<Person> personToDelete = this.getPersonByIdPort
+                .getSinglePersonById(deletePersonCommand.getId());
+
+        if(personToDelete.isEmpty()) {
+            return;
+        }
+
+        this.deletePersonPort.deletePersonById(personToDelete.get());
 
         this.personDeletedEventPort.publishDeleted(
                 new PersonDeletedEvent(deletePersonCommand.getId())

@@ -2,7 +2,9 @@ package de.stoll.nicolas.bgraph.person.application.port.out;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
 
-public interface DeletePersonPort {
+import java.util.Optional;
 
-    void deletePersonById(Person person);
+public interface GetPersonByIdPort {
+
+    Optional<Person> getSinglePersonById(String id);
 }

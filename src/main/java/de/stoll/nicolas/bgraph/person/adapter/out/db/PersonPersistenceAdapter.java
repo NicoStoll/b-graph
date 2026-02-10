@@ -1,24 +1,19 @@
 package de.stoll.nicolas.bgraph.person.adapter.out.db;
 
 import de.stoll.nicolas.bgraph.person.application.domain.model.Person;
-import de.stoll.nicolas.bgraph.person.application.domain.model.PersonQuery;
-import de.stoll.nicolas.bgraph.person.application.port.out.CreatePersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.DeletePersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.GetPersonPort;
-import de.stoll.nicolas.bgraph.person.application.port.out.UpdatePersonPort;
+import de.stoll.nicolas.bgraph.person.application.port.out.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Optional;
 
 @Log
 @Component
 @AllArgsConstructor
-public class PersonPersistenceAdapter implements GetPersonPort, CreatePersonPort, UpdatePersonPort, DeletePersonPort {
+public class PersonPersistenceAdapter implements GetPersonPort, GetPersonByIdPort, CreatePersonPort, UpdatePersonPort, DeletePersonPort {
 
     private PersonRepository personRepository;
 
@@ -42,7 +37,15 @@ public class PersonPersistenceAdapter implements GetPersonPort, CreatePersonPort
     }
 
     @Override
-    public void deletePersonById(String personId) {
+    public void deletePersonById(Person person) {
+
+        Optional<PersonEntity> entity = this.personRepository.findById(person.getId());
+
+        if(entity.isEmpty()) {
+            return;
+        }
+
+        this.personRepository.delete(entity.get());
 
         log.warning("NOT IMPLEMENTED");
     }
@@ -55,5 +58,13 @@ public class PersonPersistenceAdapter implements GetPersonPort, CreatePersonPort
         personRepository.save(entity);
 
         return entity.toPerson();
+    }
+
+    @Override
+    public Optional<Person> getSinglePersonById(String id) {
+
+        Optional<PersonEntity> personEntity = this.personRepository.findById(id);
+
+        return personEntity.map(PersonEntity::toPerson);
     }
 }
